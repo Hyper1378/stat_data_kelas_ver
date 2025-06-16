@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kalkulator Statistika - Data Tunggal & Kelompok</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<style>
+  /* Reset & base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  html {
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    background-color: #12172f;
+    color: #e0e0f8;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem 4rem;
+  }
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+
+  /* Container */
+  main {
+    background: #1f2753;
+    border-radius: 16px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.6);
+    max-width: 920px;
+    width: 100%;
+    padding: 2rem 2.5rem 3rem;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+  }
+  header h1 {
+    font-weight: 600;
+    font-size: 1.875rem;
+    letter-spacing: 0.06em;
+    color: #b9a8ff;
+    flex-grow: 1;
+  }
+  .material-icons {
+    font-size: 2.4rem;
+    color: #b9a8ff;
+  }
+  .brand {
+    font-weight: 400;
+    font-size: 1rem;
+    color: #8a80cc;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  /* Mode Selector */
+  .mode-selector {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  .mode-selector label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.125rem;
+    cursor: pointer;
+    gap: 0.5rem;
+    color: #c2b6f5;
+    user-select: none;
+    transition: color 0.3s ease;
+  }
+  .mode-selector input[type="radio"] {
+    display: none;
+  }
+  .mode-selector input[type="radio"]:checked + span {
+    color: #6e56ff;
+    font-weight: 700;
+  }
+
+  /* Inputs area */
+  .input-section {
+    margin-bottom: 2.5rem;
+  }
+  label.input-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #dddafc;
+  }
+  textarea, input[type="text"] {
+    width: 100%;
+    min-height: 100px;
+    border-radius: 12px;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background: #252f68;
+    box-shadow: inset 0 0 6px rgb(110 86 255 / 0.5);
+    color: #dfe1ff;
+    resize: vertical;
+    transition: box-shadow 0.3s ease;
+  }
+  textarea:focus, input[type="text"]:focus {
+    outline: none;
+    box-shadow: inset 0 0 10px #9378ff;
+    background-color: #323c7f;
+  }
+
+  /* Group data intervals table */
+  table.intervals-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.8rem;
+    margin-top: 0.5rem;
+  }
+  th, td {
+    text-align: center;
+    font-size: 0.95rem;
+    padding: 0.6rem 0.8rem;
+  }
+  th {
+    color: #aeadff;
+    font-weight: 600;
+    border-bottom: 1.5px solid #504da7;
+  }
+  td input[type="text"] {
+    border-radius: 8px;
+    background: #323c7f;
+    padding: 0.4rem 0.6rem;
+  }
+
+  /* Action buttons */
+  .btn {
+    cursor: pointer;
+    background: linear-gradient(135deg, #6e56ff, #8b78ff);
+    border: none;
+    padding: 0.8rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border-radius: 14px;
+    color: white;
+    box-shadow: 0 6px 14px rgba(110, 86, 255, 0.7);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+  .btn:hover, .btn:focus {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(110, 86, 255, 0.9);
+    outline: none;
+  }
+  .btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(110, 86, 255, 0.6);
+  }
+
+  /* Output results area */
+  .results {
+    background: #292e5d;
+    border-radius: 16px;
+    padding: 1.8rem 2rem;
+    box-shadow: 0 4px 15px rgba(82, 80, 152, 0.6);
+    font-size: 1rem;
+    color: #d7d4f7;
+    max-height: 410px;
+    overflow-y: auto;
+  }
+  .results h2 {
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #b19aff;
+    letter-spacing: 0.05em;
+  }
+  .result-item {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .result-item .label {
+    font-weight: 600;
+    color: #cbcaff;
+  }
+  .result-item .value {
+    font-weight: 700;
+    color: #e0d8ff;
+    text-align: right;
+    min-width: 70px;
+    word-break: break-word;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    main {
+      padding: 1rem 1.5rem 2rem;
+    }
+    .mode-selector {
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 1.5rem;
+    }
+    .results {
+      max-height: 350px;
+    }
+  }
+</style>
+</head>
+<body>
+<main role="main" aria-label="Kalkulator Statistika">
+  <header>
+    <span class="material-icons" aria-hidden="true">calculate</span>
+    <h1>Kalkulator Statistika</h1>
+    <div class="brand" aria-label="Dibuat oleh Kelompok 1">Dibuat oleh Kelompok 1</div>
+  </header>
+  <section class="mode-selector" role="radiogroup" aria-label="Pilih mode data">
+    <label>
+      <input type="radio" name="dataMode" value="single" checked aria-checked="true" />
+      <span>Data Tunggal</span>
+    </label>
+    <label>
+      <input type="radio" name="dataMode" value="group" aria-checked="false" />
+      <span>Data Kelompok</span>
+    </label>
+  </section>
+
+  <!-- Single Data Input -->
+  <section id="singleDataSection" class="input-section" aria-label="Input data tunggal">
+    <label for="singleDataInput" class="input-label">Masukkan data tunggal (pisahkan dengan koma, spasi, atau baris baru):</label>
+    <textarea id="singleDataInput" placeholder="Contoh: 2, 5, 6, 2, 10, 5, 3"></textarea>
+    <button type="button" class="btn" id="calculateSingleBtn" aria-label="Hitung Statistik Data Tunggal">Hitung Statistik</button>
+  </section>
+
+  <!-- Group Data Input -->
+  <section id="groupDataSection" class="input-section" aria-label="Input data kelompok" hidden>
+    <label class="input-label">Masukkan interval kelas dan frekuensi (angka desimal dipisah dengan titik):</label>
+    <table class="intervals-table" aria-describedby="intervalHelp">
+      <thead>
+        <tr>
+          <th>Interval Kelas (e.g. 10-20)</th>
+          <th>Frekuensi (f)</th>
+        </tr>
+      </thead>
+      <tbody id="intervalsBody">
+        <tr>
+          <td><input type="text" class="interval-input" aria-label="Interval kelas baris 1" placeholder="10-20" /></td>
+          <td><input type="text" class="freq-input" aria-label="Frekuensi baris 1" placeholder="5" /></td>
+        </tr>
+        <tr>
+          <td><input type="text" class="interval-input" aria-label="Interval kelas baris 2" placeholder="20-30" /></td>
+          <td><input type="text" class="freq-input" aria-label="Frekuensi baris 2" placeholder="7" /></td>
+        </tr>
+        <tr>
+          <td><input type="text" class="interval-input" aria-label="Interval kelas baris 3" placeholder="30-40" /></td>
+          <td><input type="text" class="freq-input" aria-label="Frekuensi baris 3" placeholder="2" /></td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="button" class="btn" id="addRowBtn" aria-label="Tambah baris interval kelas">Tambah Baris</button>
+
+    <div style="margin-top: 1rem;">
+      <label for="decileInput" class="input-label" style="margin-bottom: 4px; display:block;">Hitung Desil ke:</label>
+      <input type="text" id="decileInput" placeholder="Antara 1 sampai 9" style="width: 80px; padding: 0.5rem; border-radius: 10px; border: none; background: #323c7f; color: #e0e0f8; box-shadow: inset 0 0 6px #6e56ff;" aria-describedby="decileHelp"/>
+      <small id="decileHelp" style="color: #b2b1d8; display:block; margin-bottom: 1rem;">Isikan angka desil yang diinginkan (1-9), kosongkan jika tidak diperlukan.</small>
+
+      <label for="percentileInput" class="input-label" style="margin-bottom: 4px; display:block;">Hitung Persentil ke:</label>
+      <input type="text" id="percentileInput" placeholder="Antara 1 sampai 99" style="width: 80px; padding: 0.5rem; border-radius: 10px; border: none; background: #323c7f; color: #e0e0f8; box-shadow: inset 0 0 6px #6e56ff;" aria-describedby="percentileHelp"/>
+      <small id="percentileHelp" style="color: #b2b1d8;">Isikan angka persentil yang diinginkan (1-99), kosongkan jika tidak diperlukan.</small>
+    </div>
+    <button type="button" class="btn" id="calculateGroupBtn" aria-label="Hitung Statistik Data Kelompok" style="margin-top: 1.5rem;">Hitung Statistik</button>
+  </section>
+
+  <section class="results" aria-live="polite" aria-atomic="true" aria-label="Area hasil statistik">
+    <h2>Hasil Statistik</h2>
+    <div id="resultsContent" role="region" aria-relevant="additions removals"></div>
+  </section>
+</main>
+
+<script>
+  // UI Elements
+  const modeRadios = document.querySelectorAll('input[name="dataMode"]');
+  const singleSection = document.getElementById('singleDataSection');
+  const groupSection = document.getElementById('groupDataSection');
+  const resultsContent = document.getElementById('resultsContent');
+
+  // Toggle UI mode
+  modeRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.checked) {
+        if (radio.value === 'single') {
+          singleSection.hidden = false;
+          groupSection.hidden = true;
+          clearResults();
+        } else {
+          singleSection.hidden = true;
+          groupSection.hidden = false;
+          clearResults();
+        }
+      }
+    });
+  });
+
+  // Add new row in group data intervals table
+  const addRowBtn = document.getElementById('addRowBtn');
+  addRowBtn.addEventListener('click', () => {
+    const tbody = document.getElementById('intervalsBody');
+    const rowCount = tbody.rows.length + 1;
+    if (rowCount > 50) {
+      alert('Maksimum 50 baris interval.');
+      return;
+    }
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input type="text" class="interval-input" aria-label="Interval kelas baris ${rowCount}" placeholder="contoh: 40-50" /></td>
+      <td><input type="text" class="freq-input" aria-label="Frekuensi baris ${rowCount}" placeholder="0" /></td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Clear Results function
+  function clearResults() {
+    resultsContent.innerHTML = '';
+  }
+
+  // Utility parse single data
+  function parseSingleData(input) {
+    // Split by comma, space, newlines; filter empty; convert to Number
+    let arr = input.split(/[\s,]+/).filter(s => s.trim() !== '').map(Number);
+    if (arr.some(isNaN)) return null;
+    return arr;
+  }
+
+  // Utility parse grouped intervals and frequencies
+  function parseGroupData() {
+    const intervalsInputs = [...document.querySelectorAll('.interval-input')];
+    const freqInputs = [...document.querySelectorAll('.freq-input')];
+    const intervals = [];
+    let allValid = true;
+    for (let i = 0; i < intervalsInputs.length; i++) {
+      let intervalText = intervalsInputs[i].value.trim();
+      let freqValue = freqInputs[i].value.trim();
+      if (!intervalText || !freqValue) {
+        allValid = false;
+        break; // incomplete row
+      }
+      let freq = Number(freqValue);
+      if (isNaN(freq) || freq < 0) {
+        allValid = false;
+        break;
+      }
+      // Parse interval "a-b"
+      let parts = intervalText.split('-').map(s => s.trim());
+      if (parts.length !== 2) {
+        allValid = false;
+        break;
+      }
+      let lower = Number(parts[0]);
+      let upper = Number(parts[1]);
+      if (isNaN(lower) || isNaN(upper) || lower >= upper) {
+        allValid = false;
+        break;
+      }
+      intervals.push({ lower, upper, freq });
+    }
+    return allValid && intervals.length > 0 ? intervals : null;
+  }
+
+  // Mode calculation for array
+  function calculateMode(arr) {
+    const freqMap = new Map();
+    for (let num of arr) {
+      freqMap.set(num, (freqMap.get(num) || 0) + 1);
+    }
+    let maxFreq = 0;
+    freqMap.forEach((freq) => {
+      if (freq > maxFreq) maxFreq = freq;
+    });
+    const modes = [];
+    freqMap.forEach((freq, num) => {
+      if (freq === maxFreq) modes.push(num);
+    });
+    if (modes.length === arr.length) return []; // No mode if all appear once
+    return modes.sort((a,b) => a-b);
+  }
+
+  // Median calculation for array of numbers sorted
+  function calculateMedian(arr) {
+    let sorted = [...arr].sort((a,b) => a - b);
+    const n = sorted.length;
+    if (n === 0) return null;
+    if (n % 2 === 1) return sorted[(n-1)/2];
+    return (sorted[n/2-1] + sorted[n/2]) / 2;
+  }
+
+  // Mean calculation
+  function calculateMean(arr) {
+    if (arr.length === 0) return null;
+    const sum = arr.reduce((acc,val) => acc + val, 0);
+    return sum / arr.length;
+  }
+
+  // Variance calculation (sample)
+  function calculateVariance(arr) {
+    if (arr.length < 2) return null;
+    const mean = calculateMean(arr);
+    const sumSq = arr.reduce((acc,val) => acc + Math.pow(val-mean, 2), 0);
+    return sumSq / (arr.length - 1);
+  }
+
+  // Standard deviation (sample)
+  function calculateStdDev(arr) {
+    const varian = calculateVariance(arr);
+    return varian === null ? null : Math.sqrt(varian);
+  }
+
+  // Average absolute deviation
+  function calculateAvgDeviation(arr) {
+    if (arr.length === 0) return null;
+    const mean = calculateMean(arr);
+    const sumAbs = arr.reduce((acc,val) => acc + Math.abs(val-mean), 0);
+    return sumAbs / arr.length;
+  }
+
+  // Quartiles Q1, Q2, Q3 (array sorted)
+  function calculateQuartiles(arr) {
+    if (arr.length === 0) return null;
+    let sorted = [...arr].sort((a,b) => a - b);
+    const q2 = calculateMedian(sorted);
+
+    // Lower half (less than median, excluding median if odd)
+    let lowerHalf = sorted.filter(v => v < q2);
+    if (lowerHalf.length === 0) lowerHalf = sorted.slice(0, Math.floor(sorted.length/2));
+    // Upper half (greater than median, excluding median)
+    let upperHalf = sorted.filter(v => v > q2);
+    if (upperHalf.length === 0) upperHalf = sorted.slice(Math.ceil(sorted.length/2));
+
+    const q1 = calculateMedian(lowerHalf.length > 0 ? lowerHalf : sorted.slice(0, Math.floor(sorted.length/2)));
+    const q3 = calculateMedian(upperHalf.length > 0 ? upperHalf : sorted.slice(Math.ceil(sorted.length/2)));
+
+    return { q1, q2, q3 };
+  }
+
+  // Quartile deviation = (Q3 - Q1)/2
+  function calculateQuartileDeviation(quartiles) {
+    if (!quartiles) return null;
+    return (quartiles.q3 - quartiles.q1)/2;
+  }
+
+  // --------------------------
+  // Group data statistics helpers
+  // --------------------------
+
+  // Frequency sum
+  function sumFrequencies(intervals) {
+    return intervals.reduce((acc,i) => acc + i.freq, 0);
+  }
+
+  // Calculate midpoints (x_i) for classes
+  function midPoints(intervals) {
+    return intervals.map(i => (i.lower + i.upper) / 2);
+  }
+
+  // Mean for grouped data
+  function groupedMean(intervals) {
+    const N = sumFrequencies(intervals);
+    if (N === 0) return null;
+    const midPts = midPoints(intervals);
+    let sumFx = 0;
+    for (let i=0; i<intervals.length; i++) {
+      sumFx += intervals[i].freq * midPts[i];
+    }
+    return sumFx / N;
+  }
+
+  // Variance for grouped data (sample)
+  function groupedVariance(intervals) {
+    const N = sumFrequencies(intervals);
+    if (N <= 1) return null;
+    const mean = groupedMean(intervals);
+    const midPts = midPoints(intervals);
+    let sumFx2 = 0;
+    for (let i=0; i<intervals.length; i++) {
+      sumFx2 += intervals[i].freq * (midPts[i]**2);
+    }
+    return (sumFx2 - N * mean**2) / (N - 1);
+  }
+
+  // Standard deviation for grouped data
+  function groupedStdDev(intervals) {
+    const v = groupedVariance(intervals);
+    return v === null ? null : Math.sqrt(v);
+  }
+
+  // Average deviation for grouped data
+  function groupedAvgDeviation(intervals) {
+    const N = sumFrequencies(intervals);
+    if (N === 0) return null;
+    const mean = groupedMean(intervals);
+    const midPts = midPoints(intervals);
+    let sumFabs = 0;
+    for (let i=0; i<intervals.length; i++){
+      sumFabs += intervals[i].freq * Math.abs(midPts[i] - mean);
+    }
+    return sumFabs / N;
+  }
+
+  // Mode for grouped data using formula (assumes continuous intervals)
+  function groupedMode(intervals) {
+    if (intervals.length === 0) return null;
+    let maxFreq = Math.max(...intervals.map(i => i.freq));
+    let modalIndex = intervals.findIndex(i => i.freq === maxFreq);
+    if (modalIndex === -1 || maxFreq === 0) return null;
+
+    const modalClass = intervals[modalIndex];
+    const f1 = modalClass.freq;
+    const f0 = modalIndex > 0 ? intervals[modalIndex - 1].freq : 0;
+    const f2 = modalIndex < intervals.length - 1 ? intervals[modalIndex + 1].freq : 0;
+    const h = modalClass.upper - modalClass.lower;
+
+    if ((f1 - f0 + f1 - f2) === 0) {
+      return null; // prevent division by zero
+    }
+
+    const modeVal = modalClass.lower + ((f1 - f0) / ((f1 - f0) + (f1 - f2))) * h;
+    return modeVal;
+  }
+
+  // Median for grouped data using formula
+  function groupedMedian(intervals) {
+    const N = sumFrequencies(intervals);
+    if (N === 0) return null;
+
+    const medianPosition = N / 2;
+    let cumFreq = 0;
+    let medianClassIndex = -1;
+    for (let i=0; i<intervals.length; i++) {
+      cumFreq += intervals[i].freq;
+      if (cumFreq >= medianPosition) {
+        medianClassIndex = i;
+        break;
+      }
+    }
+    if (medianClassIndex === -1) return null;
+
+    const medianClass = intervals[medianClassIndex];
+    const cfBefore = intervals.slice(0, medianClassIndex).reduce((acc, val) => acc + val.freq, 0);
+    const f = medianClass.freq;
+    const h = medianClass.upper - medianClass.lower;
+
+    const medianVal = medianClass.lower + ((medianPosition - cfBefore) / f) * h;
+    return medianVal;
+  }
+
+  // Quartiles for grouped data using formula
+  function groupedQuartiles(intervals) {
+    const N = sumFrequencies(intervals);
+    if (N === 0) return null;
+
+    function quartilePos(k) {
+      return (k * N) / 4;
+    }
+
+    function quartileVal(k) {
+      const pos = quartilePos(k);
+      let cumFreq = 0;
+      let classIndex = -1;
+      for (let i=0; i<intervals.length; i++) {
+        cumFreq += intervals[i].freq;
+        if (cumFreq >= pos) {
+          classIndex = i;
+          break;
+        }
+      }
+      if (classIndex === -1) return null;
+
+      const cl = intervals[classIndex].lower;
+      const f = intervals[classIndex].freq;
+      const h = intervals[classIndex].upper - intervals[classIndex].lower;
+      const cfBefore = intervals.slice(0, classIndex).reduce((acc, val) => acc + val.freq, 0);
+      return cl + ((pos - cfBefore) / f) * h;
+    }
+
+    return {
+      q1: quartileVal(1),
+      q2: quartileVal(2),
+      q3: quartileVal(3)
+    };
+  }
+
+  // Quartile deviation grouped data
+  function groupedQuartileDeviation(intervals) {
+    const quart = groupedQuartiles(intervals);
+    if (!quart) return null;
+    return (quart.q3 - quart.q1) / 2;
+  }
+
+  // Decile for grouped data
+  function groupedDecile(intervals, d) {
+    if (!d || d < 1 || d > 9) return null;
+    const N = sumFrequencies(intervals);
+    const pos = (d * N) / 10;
+    let cumFreq = 0;
+    let classIndex = -1;
+    for (let i=0; i<intervals.length; i++) {
+      cumFreq += intervals[i].freq;
+      if (cumFreq >= pos) {
+        classIndex = i;
+        break;
+      }
+    }
+    if (classIndex === -1) return null;
+
+    const cl = intervals[classIndex].lower;
+    const f = intervals[classIndex].freq;
+    const h = intervals[classIndex].upper - intervals[classIndex].lower;
+    const cfBefore = intervals.slice(0, classIndex).reduce((acc, val) => acc + val.freq, 0);
+    return cl + ((pos - cfBefore) / f) * h;
+  }
+
+  // Percentile for grouped data
+  function groupedPercentile(intervals, p) {
+    if (!p || p < 1 || p > 99) return null;
+    const N = sumFrequencies(intervals);
+    const pos = (p * N) / 100;
+    let cumFreq = 0;
+    let classIndex = -1;
+    for (let i=0; i<intervals.length; i++) {
+      cumFreq += intervals[i].freq;
+      if (cumFreq >= pos) {
+        classIndex = i;
+        break;
+      }
+    }
+    if (classIndex === -1) return null;
+
+    const cl = intervals[classIndex].lower;
+    const f = intervals[classIndex].freq;
+    const h = intervals[classIndex].upper - intervals[classIndex].lower;
+    const cfBefore = intervals.slice(0, classIndex).reduce((acc, val) => acc + val.freq, 0);
+    return cl + ((pos - cfBefore) / f) * h;
+  }
+
+  // Show results helper
+  function addResult(label, value) {
+    const div = document.createElement('div');
+    div.className = 'result-item';
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'label';
+    labelSpan.textContent = label;
+    const valueSpan = document.createElement('span');
+    valueSpan.className = 'value';
+    valueSpan.textContent = (typeof value === 'number') ? value.toFixed(4) : (Array.isArray(value) ? value.join(", ") : value);
+    div.appendChild(labelSpan);
+    div.appendChild(valueSpan);
+    resultsContent.appendChild(div);
+  }
+
+  // Calculation for single data mode
+  function calculateSingle() {
+    clearResults();
+    const raw = document.getElementById('singleDataInput').value;
+    const data = parseSingleData(raw);
+    if (!data || data.length === 0) {
+      alert('Input data tidak valid, tolong periksa kembali.');
+      return;
+    }
+
+    addResult('Jumlah Data (n)', data.length);
+    const mode = calculateMode(data);
+    addResult('Modus', mode.length === 0 ? 'Tidak ada modus' : mode);
+    addResult('Median', calculateMedian(data));
+    addResult('Mean (Rata-rata)', calculateMean(data));
+    addResult('Ragam (Sample Variance)', calculateVariance(data));
+    addResult('Simpangan baku (Sample Std. Dev.)', calculateStdDev(data));
+    addResult('Simpangan rata-rata (Mean Absolute Deviation)', calculateAvgDeviation(data));
+
+    const quartiles = calculateQuartiles(data);
+    if (quartiles) {
+      addResult('Kuartil 1 (Q1)', quartiles.q1);
+      addResult('Kuartil 2 (Q2 - Median)', quartiles.q2);
+      addResult('Kuartil 3 (Q3)', quartiles.q3);
+      addResult('Simpangan kuartil (Quartile Deviation)', calculateQuartileDeviation(quartiles));
+    } else {
+      addResult('Kuartil', 'Tidak dapat dihitung');
+    }
+  }
+
+  // Calculation for grouped data mode
+  function calculateGroup() {
+    clearResults();
+    const intervals = parseGroupData();
+    if (!intervals) {
+      alert('Input interval kelas dan frekuensi tidak valid atau tidak lengkap.');
+      return;
+    }
+
+    addResult('Jumlah Data (N)', sumFrequencies(intervals));
+    const modeVal = groupedMode(intervals);
+    addResult('Modus', modeVal === null ? 'Tidak dapat dihitung' : modeVal);
+    const medianVal = groupedMedian(intervals);
+    addResult('Median', medianVal === null ? 'Tidak dapat dihitung' : medianVal);
+    const meanVal = groupedMean(intervals);
+    addResult('Mean (Rata-rata)', meanVal === null ? 'Tidak dapat dihitung' : meanVal);
+    const varVal = groupedVariance(intervals);
+    addResult('Ragam (Sample Variance)', varVal === null ? 'Tidak dapat dihitung' : varVal);
+    const stdDevVal = groupedStdDev(intervals);
+    addResult('Simpangan baku (Sample Std. Dev.)', stdDevVal === null ? 'Tidak dapat dihitung' : stdDevVal);
+    const avgDevVal = groupedAvgDeviation(intervals);
+    addResult('Simpangan rata-rata (Mean Absolute Deviation)', avgDevVal === null ? 'Tidak dapat dihitung' : avgDevVal);
+
+    const quartiles = groupedQuartiles(intervals);
+    if (quartiles) {
+      addResult('Kuartil 1 (Q1)', quartiles.q1);
+      addResult('Kuartil 2 (Q2 - Median)', quartiles.q2);
+      addResult('Kuartil 3 (Q3)', quartiles.q3);
+      addResult('Simpangan kuartil (Quartile Deviation)', groupedQuartileDeviation(intervals));
+    } else {
+      addResult('Kuartil', 'Tidak dapat dihitung');
+    }
+
+    // Handle decile and percentile inputs
+    const decileInput = document.getElementById('decileInput').value.trim();
+    const percentileInput = document.getElementById('percentileInput').value.trim();
+
+    if (decileInput) {
+      const decileNum = Number(decileInput);
+      if (isNaN(decileNum) || decileNum < 1 || decileNum > 9) {
+        addResult('Desil', 'Input tidak valid (harus antara 1 sampai 9)');
+      } else {
+        const decileVal = groupedDecile(intervals, decileNum);
+        addResult(`Desil ke-${decileNum}`, decileVal === null ? 'Tidak dapat dihitung' : decileVal);
+      }
+    }
+    if (percentileInput) {
+      const percentileNum = Number(percentileInput);
+      if (isNaN(percentileNum) || percentileNum < 1 || percentileNum > 99) {
+        addResult('Persentil', 'Input tidak valid (harus antara 1 sampai 99)');
+      } else {
+        const percVal = groupedPercentile(intervals, percentileNum);
+        addResult(`Persentil ke-${percentileNum}`, percVal === null ? 'Tidak dapat dihitung' : percVal);
+      }
+    }
+  }
+
+  // Event listeners on calculate buttons
+  document.getElementById('calculateSingleBtn').addEventListener('click', calculateSingle);
+  document.getElementById('calculateGroupBtn').addEventListener('click', calculateGroup);
+
+</script>
+</body>
+</html>
+
+
